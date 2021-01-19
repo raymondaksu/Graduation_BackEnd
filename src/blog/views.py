@@ -1,5 +1,4 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -28,17 +27,17 @@ def post_list_create(request):
             }
             return Response(data, status=status.HTTP_201_CREATED)
         data = {
-            "message": "Post could not be creted !"
+            "message": "Post could not be created !"
         }
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["GET"])
-def comment_list(request):
-    if request.method == "GET":
-        comments = Comment.objects.all()
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(["GET"])
+# def comment_list(request):
+#     if request.method == "GET":
+#         comments = Comment.objects.all()
+#         serializer = CommentSerializer(comments, many=True)
+#         return Response(serializer.data)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(["GET", "PUT", "DELETE"])
 def post_get_update_delete(request, slug):
