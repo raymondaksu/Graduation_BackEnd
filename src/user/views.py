@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from django.contrib.auth.models import User
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, ProfileSerializer, UserSerializer
 from django.contrib import messages
+from .models import Profile
 
 @api_view(["POST"])
 def RegisterView(request):
@@ -22,5 +23,42 @@ def RegisterView(request):
         data = {
             "message": "User could not be created !"
         }
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET", "PUT", "DELETE"])
+def UserGetUpdateDelete(request, id):
+    user = get_object_or_404(User, id=id)
+    if request.method == "GET":
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    if request.method == "PUT":
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            data = {
+                "message": "Password updated successfully"
+            }
+            return Response(data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "DELETE":
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(["GET", "PUT"])
+def ProfileView(request, id):
+    profile = get_object_or_404(Profile, id=id)
+
+    if request.method == "GET":
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
+
+    if request.method == "PUT":
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            data = {
+                "message": "profile updated successfully"
+            }
+            return Response(data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
