@@ -90,14 +90,14 @@ def post_get_update_delete(request, slug):
         return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
 
 # ------------------------POST-DETAIL---------------------
+
 @login_required
-@permission_classes([IsAuthenticated])
 @api_view(["GET"])
 def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug)
     if request.method == "GET":
         if request.user.is_authenticated:
-            view = PostView.objects.create(user=request.user, post=post)
+            view = PostView.objects.get_or_create(user=request.user, post=post)
             view_serializer = PostViewSerializer(view, data=request.data)
             if view_serializer.is_valid():
                 view_serializer.save()
@@ -127,6 +127,7 @@ def comment_create_view(request, slug):
 # ------------------------COMMENT EDIT---------------------
 
 @login_required
+@permission_classes([IsAuthenticated])
 @api_view(["PUT", "DELETE"])
 def comment_edit_view(request, slug, id):
     comment = get_object_or_404(Comment, id=id)
