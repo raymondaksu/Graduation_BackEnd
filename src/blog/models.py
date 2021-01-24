@@ -1,8 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-import json
-
-from django.db.models.fields.related import RelatedField
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -32,7 +29,7 @@ class Post(models.Model):
     update_date = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     author_avatar = models.CharField(
-        max_length=220, default="https://www.kindpng.com/picc/m/105-1055656_account-user-profile-avatar-avatar-user-profile-icon.png")
+    max_length=220, default="https://www.kindpng.com/picc/m/105-1055656_account-user-profile-avatar-avatar-user-profile-icon.png")
     status = models.CharField(max_length=10, choices=OPTIONS, default="draft")
     is_liked = models.BooleanField(default=False)
     slug = models.SlugField(blank=True, unique=True)
@@ -40,15 +37,19 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+    @property
     def comment_count(self):
         return self.comment_set.all().count()
 
+    @property
     def like_count(self):
         return self.like_set.all().count()
 
+    @property
     def view_count(self):
         return self.postview_set.all().count()
 
+    @property
     def comments(self):
         return self.comment_set.all()
 
