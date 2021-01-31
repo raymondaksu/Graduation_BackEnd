@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from .serializers import RegistrationSerializer, ProfileSerializer, UserSerializer
 from django.contrib import messages
 from .models import Profile
-from django.contrib.auth.decorators import login_required
 
 @api_view(["POST"])
 def RegisterView(request):
@@ -27,11 +26,10 @@ def RegisterView(request):
         }
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@login_required
-@permission_classes([IsAuthenticated])
 @api_view(["GET", "PUT", "DELETE"])
-def UserGetUpdateDelete(request, id):
-    user = get_object_or_404(User, id=id)
+@permission_classes([IsAuthenticated])
+def UserGetUpdateDelete(request):
+    user = get_object_or_404(User, id=request.user.id)
     if request.method == "GET":
         serializer = UserSerializer(user)
         return Response(serializer.data)
@@ -48,11 +46,10 @@ def UserGetUpdateDelete(request, id):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-@login_required
-@permission_classes([IsAuthenticated])
 @api_view(["GET", "PUT"])
-def ProfileView(request, id):
-    profile = get_object_or_404(Profile, id=id)
+@permission_classes([IsAuthenticated])
+def ProfileView(request):
+    profile = get_object_or_404(Profile, user=request.user)
 
     if request.method == "GET":
         serializer = ProfileSerializer(profile)
