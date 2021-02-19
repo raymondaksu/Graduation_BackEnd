@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.fields import related
+from user.models import Profile
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
@@ -29,8 +29,7 @@ class Post(models.Model):
     publish_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    author_avatar = models.CharField(
-    max_length=220, default="https://www.kindpng.com/picc/m/105-1055656_account-user-profile-avatar-avatar-user-profile-icon.png")
+    author_avatar = models.ForeignKey(Profile, on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=OPTIONS, default="draft")
     is_liked = models.BooleanField(default=False)
     slug = models.SlugField(blank=True, unique=True)
@@ -54,10 +53,13 @@ class Post(models.Model):
     def comments(self):
         return self.comment_set.all()
 
+
 class Comment(models.Model):
     commenter = models.ForeignKey(User, on_delete=models.CASCADE)
+    commenter_avatar = models.ForeignKey(Profile, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     time_stamp = models.DateTimeField(auto_now_add=True)
+    edit_time = models.DateTimeField(auto_now=True)
     content = models.TextField()
 
     def __str__(self):

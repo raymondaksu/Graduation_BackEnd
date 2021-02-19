@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db import models
 import nested_admin
 from .models import Category, Post, Comment, Like, PostView
 

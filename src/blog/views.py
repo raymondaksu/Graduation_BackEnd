@@ -1,9 +1,12 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+
+from user.models import Profile
 
 from .models import Category, Post, Comment, Like, PostView
 
@@ -11,7 +14,8 @@ from .serializers import CategorySerializer, PostSerializer, CommentSerializer, 
 
 from rest_framework.pagination import PageNumberPagination
 
-# ------------------------CATEGORY LIST---------------------​
+# ------------------------CATEGORY LIST---------------------
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -21,20 +25,27 @@ def category_list(request):
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
-# ------------------------POST LIST-------------------------​
+# ------------------------POST LIST-------------------------
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def post_list(request):
     if request.method == "GET":
-        paginator = PageNumberPagination()
-        paginator.page_size = 12
+        # paginator = PageNumberPagination()
+        # paginator.page_size = 12
+        # post = Post.objects.all()
+        # result_page = paginator.paginate_queryset(post, request)
+        # serializer = PostSerializer(
+        #     result_page, many=True, context={'request': request})
+        # return paginator.get_paginated_response(serializer.data)
         post = Post.objects.all()
-        result_page = paginator.paginate_queryset(post, request)
-        serializer = PostSerializer(result_page, many=True, context={'request': request})
-        return paginator.get_paginated_response(serializer.data)
+        serializer = PostSerializer(
+            post, many=True, context={'request': request})
+        return Response(serializer.data)
 
 # ------------------------POST-CREATE-----------------------
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -53,8 +64,48 @@ def post_create(request):
         }
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# ------------------------POST-GET-UPDATE-DELETE---------------------
+# ------------------------COMMENT CREATE---------------------
 
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def comment_create_view(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    profile = get_object_or_404(Profile, user=request.user)
+    if request.method == "POST":
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(commenter=request.user, post=post, commenter_avatar=profile)
+            data = {
+                "message": "Comment created successfully!"
+            }
+        return Response(data, status=status.HTTP_201_CREATED)
+    data = {
+        "message": "Comment could not be created !"
+    }
+    return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ------------------------POST-DETAIL---------------------
+@api_view(["GET"])
+def post_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    data = {
+        "message": "Log in to view details!"
+    }
+    if request.method == "GET":
+        if request.user.is_authenticated:
+            view = PostView.objects.get_or_create(user=request.user, post=post)
+            view_serializer = PostViewSerializer(view, data=request.data)
+            if view_serializer.is_valid():
+                view_serializer.save()
+            serializer = PostSerializer(post, context={'request': request})
+            return Response(serializer.data)
+        else:
+            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+    return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+
+
+# ------------------------POST-GET-UPDATE-DELETE---------------------
 @api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def post_get_update_delete(request, slug):
@@ -88,46 +139,8 @@ def post_get_update_delete(request, slug):
         }
         return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
 
-# ------------------------POST-DETAIL---------------------
-
-@api_view(["GET"])
-def post_detail(request, slug):
-    post = get_object_or_404(Post, slug=slug)
-    data = {
-            "message": "You are not authorized to view details!"
-            }
-    if request.method == "GET":
-        if request.user.is_authenticated:
-            view = PostView.objects.get_or_create(user=request.user, post=post)
-            view_serializer = PostViewSerializer(view, data=request.data)
-            if view_serializer.is_valid():
-                view_serializer.save()
-            serializer = PostSerializer(post, context={'request': request})
-            return Response(serializer.data)
-        else:
-            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-    return Response(data, status=status.HTTP_401_UNAUTHORIZED)
-
-# ------------------------COMMENT CREATE---------------------
-
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def comment_create_view(request, slug):
-    post = get_object_or_404(Post, slug=slug)
-    if request.method == "POST":
-        serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(commenter=request.user, post=post)
-            data = {
-                "message": "Comment created successfully!"
-            }
-            return Response(data, status=status.HTTP_201_CREATED)
-    data = {
-        "message": "Comment could not be created !"
-    }
-    return Response(data, status=status.HTTP_400_BAD_REQUEST)
-
 # ------------------------COMMENT EDIT---------------------
+
 
 @api_view(["PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
@@ -144,7 +157,7 @@ def comment_edit_view(request, slug, id):
                 return Response(success_data, status=status.HTTP_202_ACCEPTED)
             return Response(edit_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         error_data = {
-                "message": "You are not the author"
+            "message": "You are not the author"
         }
         return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
     if request.method == "DELETE":
@@ -156,7 +169,8 @@ def comment_edit_view(request, slug, id):
         }
         return Response(error_data, status=status.HTTP_401_UNAUTHORIZED)
 
-#-------------------------LIKE VİEW----------------------------------
+# -------------------------LIKE----------------------------------
+
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -176,4 +190,3 @@ def like(request, slug):
                 "message": "Liked!"
             }
             return Response(data, status=status.HTTP_201_CREATED)
-
