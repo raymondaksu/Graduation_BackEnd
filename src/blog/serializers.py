@@ -1,9 +1,10 @@
-from django.db.models.query_utils import Q
 from rest_framework import serializers
 from .models import Category, Post, Comment, Like, PostView
+from django.db.models.query_utils import Q
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
         fields = (
@@ -16,30 +17,37 @@ class CategorySerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
 
     commenter_name = serializers.SerializerMethodField()
+    commenter_avatar = serializers.SerializerMethodField()
     commenter = serializers.SerializerMethodField()
     post = serializers.StringRelatedField()
 
     class Meta:
         model = Comment
         fields = (
+            "id",
             "commenter",
             "commenter_name",
+            "commenter_avatar",
             "post",
             "time_stamp",
             "content",
+            "edit_time"
         )
-    
+
     def get_commenter_name(self, obj):
         return obj.commenter.username
 
     def get_commenter(self, obj):
         return obj.commenter.id
 
+    def get_commenter_avatar(self, obj):
+        return obj.commenter_avatar.image
 
 class PostSerializer(serializers.ModelSerializer):
     status = serializers.ChoiceField(choices=Post.OPTIONS)
     comments = CommentSerializer(many=True, required=False)
     author_name = serializers.SerializerMethodField()
+    author_avatar = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     category = serializers.StringRelatedField()
     is_liked = serializers.SerializerMethodField()
@@ -78,16 +86,8 @@ class PostSerializer(serializers.ModelSerializer):
     def get_author(self, obj):
         return obj.author.id
 
-        # extra_kwargs = {
-        #     "publish_date": {"read_only": True},
-        #     "author": {"read_only": True},
-        #     "is_liked": {"read_only": True},
-        #     "slug": {"read_only": True},
-        #     "comment_count": {"read_only": True},
-        #     "like_count": {"read_only": True},
-        #     "view_count": {"read_only": True},
-        #     "comments": {"read_only": True},
-        # }
+    def get_author_avatar(self, obj):
+        return obj.author_avatar.image
 
 
 class PostEditSerializer(serializers.ModelSerializer):
@@ -123,5 +123,3 @@ class PostViewSerializer(serializers.ModelSerializer):
             "post",
             "time_stamp"
         )
-
-
