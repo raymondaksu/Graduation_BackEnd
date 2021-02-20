@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
-# import django_heroku
+import django_heroku
 from pathlib import Path
 from decouple import config
 
@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['fs-blogapp-django.herokuapp.com', 'http://localhost:8000/']
+ALLOWED_HOSTS = ['fs-blogapp-django.herokuapp.com', 'http://localhost:8000/']
 
 
 # Application definition
@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'blog_project.urls'
@@ -159,4 +159,4 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-# django_heroku.settings(locals())
+django_heroku.settings(locals())
