@@ -167,7 +167,7 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
             if not PasswordResetTokenGenerator().check_token(user, token):
                 return Response({'error' : 'Token is not valid, please request a new one'}, status=status.HTTP_401_UNAUTHORIZED)
 
-            return HttpResponseRedirect(f'https://fsblog-backend.herokuapp.com/{uidb64}/{token}/', {'uidb64':uidb64, 'token': token})
+            return HttpResponseRedirect(f'http://localhost:3000/password-reset/{uidb64}/{token}/', {'uidb64':uidb64, 'token': token})
 
         except DjangoUnicodeDecodeError as identifier:
             if not PasswordResetTokenGenerator().check_token(user):
