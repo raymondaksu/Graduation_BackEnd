@@ -52,15 +52,27 @@ def UserGetUpdateDelete(request):
     if request.method == "PUT":
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            # Check old password
+            if not user.check_password(serializer.validated_data['password']):
+                return Response({"password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save(password=user.password)
             data = {
-                "message": "Password updated successfully"
+                "message": "User updated successfully"
             }
             return Response(data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     if request.method == "DELETE":
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            # Check old password
+            if not user.check_password(serializer.validated_data['password']):
+                return Response({"password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            user.delete()
+            data = {
+                "message": "User deleted successfully"
+            }
+            return Response(data, status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # -------------------PROFILE VIEW----------------------
 

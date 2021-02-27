@@ -27,8 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['fs-blogapp-django.herokuapp.com', 'http://localhost:8000/']
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -155,7 +154,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config('EMAIL_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
-
 
 CORS_ALLOW_ALL_ORIGINS = True
 
