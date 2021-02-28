@@ -12,6 +12,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import force_str, smart_str, force_bytes, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
+
 class RegistrationSerializer(serializers.ModelSerializer):
     # Overwriting fields
     email = serializers.EmailField(required=True, validators=[
@@ -65,8 +66,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
-    password = serializers.CharField(required=True, write_only=False)
-
+    password = serializers.CharField(required=True, write_only=True)
     username = serializers.CharField(required=False, max_length=50)
 
     class Meta:
@@ -75,9 +75,15 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'password',
+            'date_joined',
+            'last_login'
         ]
 
+        extra_kwargs = {'date_joined': {'read_only': True},
+                        'last_login': {'read_only': True}}
+
 # ------------------Token Serializer---------------------
+
 
 class UserTokenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,6 +113,7 @@ class CustomTokenSerializer(TokenSerializer):
 
 # ----------------Change Password-----------------------------
 
+
 class ChangePasswordSerializer(serializers.Serializer):
     model = User
 
@@ -125,14 +132,16 @@ class ResetPasswordWithEmailSerializer(serializers.Serializer):
     class Meta:
         fields = ['email']
 
+
 class SetNewPasswordSerializer(serializers.Serializer):
-    password = serializers.CharField(min_length=6, max_length=68, write_only=True)
+    password = serializers.CharField(
+        min_length=6, max_length=68, write_only=True)
     token = serializers.CharField(min_length=1, write_only=True)
     uidb64 = serializers.CharField(min_length=1, write_only=True)
 
     class Meta:
-        fields=['password', 'token', 'uidb64']
-    
+        fields = ['password', 'token', 'uidb64']
+
     def validate(self, attrs):
         try:
             password = attrs.get('password')
