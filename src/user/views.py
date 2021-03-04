@@ -42,7 +42,7 @@ def RegisterView(request):
 # -------------------USER GET UPDATE DELETE----------------------
 
 
-@api_view(["GET", "PUT", "DELETE"])
+@api_view(["GET", "PUT", "POST"])
 @permission_classes([IsAuthenticated])
 def UserGetUpdateDelete(request):
     user = get_object_or_404(User, id=request.user.id)
@@ -61,10 +61,10 @@ def UserGetUpdateDelete(request):
             }
             return Response(data, status=status.HTTP_202_ACCEPTED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    if request.method == "DELETE":
+    if request.method == "POST":
         serializer = UserSerializer(user, data=request.data)
         if serializer.is_valid():
-            # Check old password
+            #Check old password
             if not user.check_password(serializer.validated_data['password']):
                 return Response({"password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
             user.delete()
@@ -72,7 +72,11 @@ def UserGetUpdateDelete(request):
                 "message": "User deleted successfully"
             }
             return Response(data, status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = {
+            "message": "Could not be deleted!"
+        }
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
 
 # -------------------PROFILE VIEW----------------------
 
