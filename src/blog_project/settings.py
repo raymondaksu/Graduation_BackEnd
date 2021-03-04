@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'blog.apps.BlogConfig',
     'user.apps.UserConfig',
+    'chat.apps.ChatConfig',
     'nested_admin',
     'rest_framework.authtoken',
     'dj_rest_auth',

@@ -24,7 +24,7 @@ class Post(models.Model):
     )
     title = models.CharField(max_length=100)
     content = models.TextField()
-    image_URL = models.CharField(max_length=200)
+    image_URL = models.CharField(max_length=1000)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     publish_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
