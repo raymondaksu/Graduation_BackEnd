@@ -1,4 +1,5 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.shortcuts import render, get_object_or_404
 
 from rest_framework.response import Response
@@ -53,8 +54,9 @@ def post_create(request):
     if request.method == "POST":
         serializer = PostSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
+            author_avatar = Profile.objects.get(user = request.user)
             category_serialize = Category(request.data['category'])
-            serializer.save(author=request.user, category=category_serialize)
+            serializer.save(author=request.user, category=category_serialize, author_avatar=author_avatar)
             data = {
                 "message": "Post created successfully!"
             }

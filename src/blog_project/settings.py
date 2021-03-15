@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
-import django_heroku
+# import django_heroku
 from pathlib import Path
 from decouple import config
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'rest_framework',
     'blog.apps.BlogConfig',
     'user.apps.UserConfig',
@@ -58,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'blog_project.urls'
@@ -81,6 +82,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'blog_project.wsgi.application'
 
+ASGI_APPLICATION = "blog_project.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+   }
+}
+
+AUTH_USER_MODEL = "chat.ChatUser"
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -158,4 +168,4 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-django_heroku.settings(locals())
+# django_heroku.settings(locals())

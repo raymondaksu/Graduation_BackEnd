@@ -6,7 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework import status, generics
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from .serializers import RegistrationSerializer, ProfileSerializer, UserSerializer, ChangePasswordSerializer, ResetPasswordWithEmailSerializer, SetNewPasswordSerializer
 from django.contrib import messages
 from .models import Profile
