@@ -1,6 +1,7 @@
 from django.http import request
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from rest_framework.exceptions import AuthenticationFailed
 from .models import Profile
 from dj_rest_auth.serializers import TokenSerializer
