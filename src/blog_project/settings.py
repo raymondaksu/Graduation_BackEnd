@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
-# import django_heroku
+import django_heroku
 from pathlib import Path
 from decouple import config
 
@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'blog_project.urls'
@@ -84,10 +84,17 @@ WSGI_APPLICATION = 'blog_project.wsgi.application'
 
 ASGI_APPLICATION = "blog_project.routing.application"
 
+# REDIS_URL = os.environ.get('REDIS_URL_STUNNEL') or \
+#             os.environ.get('REDIS_URL'),
+
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-   }
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [config('REDIS_URL')],
+            # 'hosts': [REDIS_URL, os.environ.get('redis://localhost:6379')],
+        },
+    },
 }
 
 AUTH_USER_MODEL = "chat.ChatUser"
@@ -168,4 +175,4 @@ EMAIL_HOST_PASSWORD = config('EMAIL_PASSWORD')
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-# django_heroku.settings(locals())
+django_heroku.settings(locals())

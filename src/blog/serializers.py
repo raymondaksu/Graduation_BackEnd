@@ -101,7 +101,6 @@ class PostEditSerializer(serializers.ModelSerializer):
             "image_URL",
             "category",
             "update_date",
-            "author_avatar",
             "status",
         )
 
