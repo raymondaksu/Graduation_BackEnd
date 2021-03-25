@@ -19,7 +19,7 @@ class ChatConsumer(WebsocketConsumer):
         self.send_message(content)
 
     def fetch_messages(self, data):
-        messages = Message.last_50_messages()
+        messages = Message.last_1000_messages()
         content = {
             'command': 'messages',
             'messages': self.messages_to_json(messages)
@@ -28,9 +28,11 @@ class ChatConsumer(WebsocketConsumer):
 
     def new_message(self, data):
         author = data['from']
+        receiver = data['to']
         text = data['text']
         author_user, created = ChatUser.objects.get_or_create(username=author)
-        message = Message.objects.create(author=author_user, content=text)
+        receiver_user, created = ChatUser.objects.get_or_create(username=receiver)
+        message = Message.objects.create(author=author_user, receiver=receiver_user, content=text)
         content = {
             'command': 'new_message',
             'message': self.message_to_json(message)
@@ -47,6 +49,7 @@ class ChatConsumer(WebsocketConsumer):
         return {
             'id': str(message.id),
             'author': message.author.username,
+            'receiver': message.receiver.username,
             'content': message.content,
             'created_at': str(message.created_at)
         }

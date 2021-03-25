@@ -51,14 +51,21 @@ class Message(models.Model):
         related_name='author_messages',
         on_delete=models.CASCADE
     )
+    receiver = models.ForeignKey(
+        ChatUser,
+        blank=False,
+        null=False,
+        related_name='receiver_messages',
+        on_delete=models.CASCADE
+    )
     content = models.TextField(validators=[validate_message_content])
     created_at = models.DateTimeField(auto_now_add=True, blank=True)
 
-    def last_50_messages():
-        return Message.objects.order_by('-created_at').all()[:50]
+    def last_1000_messages():
+        return Message.objects.order_by('-created_at').all()[:1000]
 
     def __str__(self):
-        return "{} - {} ({})".format(self.content, self.author, self.id)
+        return "{} - {}-{} ({})".format(self.content, self.author, self.receiver, self.id)
     
 
 
