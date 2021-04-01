@@ -36,7 +36,7 @@ def RegisterView(request):
             }
             return Response(data, status=status.HTTP_201_CREATED)
         data = {
-            "message": "User could not be created !"
+            "message": "User could not be created! Please try different username or password (Your password must contain at least 8 characters, and include at least one lowercase letter, one different uppercase letter, and a number)."
         }
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
